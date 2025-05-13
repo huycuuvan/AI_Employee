@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +17,14 @@ interface HeaderProps {
 }
 
 const Header = ({ title, onCreateClick }: HeaderProps) => {
+  const navigate = useNavigate();
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    navigate('/login');
+  };
+
   return (
     <header className="h-16 border-b bg-card flex items-center justify-between px-6">
       <h1 className="text-xl font-semibold">{title}</h1>
@@ -68,22 +77,28 @@ const Header = ({ title, onCreateClick }: HeaderProps) => {
             Create Agent
           </Button>
         )}
-        {/* Account field */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="flex items-center gap-2 px-2 ml-4">
-              <span className="w-8 h-8 rounded-full bg-teampal-200 flex items-center justify-center text-teampal-700 font-bold p-4">A</span>
-              <span className="hidden md:inline text-sm font-medium">Admin</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Account/Login field */}
+        {isLoggedIn ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="flex items-center gap-2 px-2 ml-4">
+                <span className="w-8 h-8 rounded-full bg-teampal-200 flex items-center justify-center text-teampal-700 font-bold p-4">A</span>
+                <span className="hidden md:inline text-sm font-medium">Admin</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button variant="outline" className="ml-4" onClick={() => navigate('/login')}>
+            Login
+          </Button>
+        )}
       </div>
     </header>
   );

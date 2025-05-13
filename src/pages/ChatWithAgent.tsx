@@ -1,12 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import ChatLayout from '@/components/layout/ChatLayout';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageSquare, PaperclipIcon, Send, Zap, Plus } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import Skeleton from '@/components/ui/skeleton';
 
 type Agent = {
   id: string;
@@ -223,7 +222,12 @@ function ChatContent({
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {chatMessages.map((message, idx) => (
-            <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} flex-col`}>
+            <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-end`}>
+              {message.sender === 'agent' && (
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${agent?.avatarColor} ${agent?.textColor}`}>
+                  {agent?.avatar}
+                </div>
+              )}
               <div
                 className={`max-w-[80%] rounded-lg p-3 ${
                   message.sender === 'user'
@@ -236,10 +240,16 @@ function ChatContent({
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
+              {message.sender === 'user' && (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center ml-2 bg-blue-100 text-blue-700 font-bold">
+                  U
+                </div>
+              )}
             </div>
           ))}
           {isLoading && (
-            <div className="flex justify-start">
+            <div className="flex justify-start items-end">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${agent?.avatarColor} ${agent?.textColor}`}>{agent?.avatar}</div>
               <div className="max-w-[80%] rounded-lg p-3 bg-accent/50">
                 <div className="flex gap-1">
                   <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
@@ -257,8 +267,8 @@ function ChatContent({
         <div className="flex items-center gap-2">
           <div className="flex-1 relative">
             <Textarea
-              placeholder="Ask your Agent..."
-              className="min-h-[50px] py-3 pr-10 resize-none"
+              placeholder="Nhập tin nhắn..."
+              className="min-h-[36px] py-2 pr-10 resize-none rounded-md text-sm"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -273,10 +283,10 @@ function ChatContent({
             </Button>
           </div>
           <div className="flex gap-2">
-            <Button className="bg-teampal-500 hover:bg-teampal-600" disabled={!inputValue.trim() || isLoading} onClick={handleSendMessage}>
+            <Button className="bg-teampal-500 hover:bg-teampal-600 px-3 py-2 rounded-md" disabled={!inputValue.trim() || isLoading} onClick={handleSendMessage}>
               <Send className="h-4 w-4" />
             </Button>
-            <Button variant="outline" className="flex gap-1">
+            <Button variant="outline" className="flex gap-1 px-3 py-2 rounded-md text-sm">
               <Zap className="h-4 w-4 text-yellow-500" />
               <span>Super Power</span>
             </Button>
@@ -289,6 +299,38 @@ function ChatContent({
     </>
   );
 }
+
+// Lazy load AgentListSidebar
+const AgentListSidebar = React.lazy(() => Promise.resolve({
+  default: (props: { agents: Agent[], currentAgent: Agent | undefined, handleNewChat: () => void }) => {
+    const { agents, currentAgent, handleNewChat } = props;
+    return (
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-4">
+          <Link to="/">
+            <img src="/placeholder.svg" alt="Logo" className="w-8 h-8 cursor-pointer" />
+          </Link>
+          <h2 className="font-medium">Your Agents</h2>
+        </div>
+        {agents.map((a) => (
+          <Link key={a.id} to={`/agents/chat/${a.id}`}>
+            <div className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-accent mb-2 ${a.id === currentAgent?.id ? 'bg-accent' : ''}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${a.avatarColor} ${a.textColor}`}>{a.avatar}</div>
+              <div>
+                <p className="font-medium text-sm">{a.name}</p>
+                <p className="text-xs text-muted-foreground">{a.department}</p>
+              </div>
+            </div>
+          </Link>
+        ))}
+        <Button variant="outline" className="w-full mt-2 flex gap-2" onClick={handleNewChat}>
+          <Plus className="h-4 w-4" />
+          <span>New chat</span>
+        </Button>
+      </div>
+    );
+  }
+}));
 
 const ChatWithAgent = () => {
   const { agentId } = useParams();
@@ -454,32 +496,21 @@ const ChatWithAgent = () => {
 
   // Left sidebar content - Agent list
   const LeftSidebar = () => (
-    <div className="p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Link to="/">
-          <img src="/placeholder.svg" alt="Logo" className="w-8 h-8 cursor-pointer" />
-        </Link>
-        <h2 className="font-medium">Your Agents</h2>
-      </div>
-      {agents.map((a) => (
-        <Link key={a.id} to={`/agents/chat/${a.id}`}>
-          <div className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-accent mb-2 ${a.id === agent?.id ? 'bg-accent' : ''}`}>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${a.avatarColor} ${a.textColor}`}>
-              {a.avatar}
-            </div>
-            <div>
-              <p className="font-medium text-sm">{a.name}</p>
-              <p className="text-xs text-muted-foreground">{a.department}</p>
+    <Suspense fallback={
+      <div className="p-4">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 mb-4">
+            <Skeleton className="w-10 h-10" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
             </div>
           </div>
-        </Link>
-      ))}
-      
-      <Button variant="outline" className="w-full mt-2 flex gap-2" onClick={handleNewChat}>
-        <Plus className="h-4 w-4" />
-        <span>New chat</span>
-      </Button>
-    </div>
+        ))}
+      </div>
+    }>
+      <AgentListSidebar agents={agents} currentAgent={agent} handleNewChat={handleNewChat} />
+    </Suspense>
   );
 
   // Right sidebar content - Chat history

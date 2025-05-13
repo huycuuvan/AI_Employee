@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import ChatWithAgent from "./pages/ChatWithAgent";
 import Workspace from "./pages/Workspace";
 import Register from "./pages/Register";
+import Profile from './pages/Profile';
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

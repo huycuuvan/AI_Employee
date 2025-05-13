@@ -59,6 +59,9 @@ const Register = () => {
         <div className="mt-4 text-center text-sm">
           Đã có tài khoản? <a href="/login" className="text-blue-500 hover:underline">Đăng nhập</a>
         </div>
+        <Button type="button" variant="outline" className="w-full mt-2" onClick={() => navigate('/login')}>
+          Quay lại trang đăng nhập
+        </Button>
       </form>
     </div>
   );
