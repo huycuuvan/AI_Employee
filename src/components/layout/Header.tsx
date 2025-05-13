@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Bell, Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -63,12 +62,28 @@ const Header = ({ title, onCreateClick }: HeaderProps) => {
         {onCreateClick && (
           <Button 
             onClick={onCreateClick} 
-            className="bg-teampal-500 hover:bg-teampal-600 text-white"
+            className="bg-teampal-500 hover:bg-teampal-600 text-white mr-4"
           >
             <Plus className="h-4 w-4 mr-2" />
             Create Agent
           </Button>
         )}
+        {/* Account field */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="flex items-center gap-2 px-2 ml-4">
+              <span className="w-8 h-8 rounded-full bg-teampal-200 flex items-center justify-center text-teampal-700 font-bold p-4">A</span>
+              <span className="hidden md:inline text-sm font-medium">Admin</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel>Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Logout</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

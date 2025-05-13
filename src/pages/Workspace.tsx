@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 interface Agent {
-  id: number;
+  id: string;
   name: string;
   description: string;
   avatar: string;
@@ -39,63 +38,75 @@ const Workspace = () => {
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isCreateAgentOpen, setIsCreateAgentOpen] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<WorkspaceFolder | null>(null);
+  const [renameFolderId, setRenameFolderId] = useState<number | null>(null);
+  const [renameFolderName, setRenameFolderName] = useState('');
+  const [isRenameFolderOpen, setIsRenameFolderOpen] = useState(false);
 
-  // Sample workspace data
-  const [folders, setFolders] = useState<WorkspaceFolder[]>([
-    {
-      id: 1,
-      name: "Sales Team",
-      theme: "sales",
-      agents: [
-        {
-          id: 101,
-          name: "Sales Representative",
-          description: "Focuses on acquiring new customers and closing deals",
-          avatar: "S",
-          avatarColor: "bg-blue-100",
-          textColor: "text-blue-700",
-        },
-        {
-          id: 102,
-          name: "Sales Consultant",
-          description: "Provides expert advice to customers on product solutions",
-          avatar: "S",
-          avatarColor: "bg-blue-100",
-          textColor: "text-blue-700",
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: "Marketing Team",
-      theme: "marketing",
-      agents: [
-        {
-          id: 201,
-          name: "Content Marketer",
-          description: "Creates engaging content for various marketing channels",
-          avatar: "M",
-          avatarColor: "bg-green-100",
-          textColor: "text-green-700",
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: "IT Support",
-      theme: "it",
-      agents: [
-        {
-          id: 301,
-          name: "IT Specialist",
-          description: "Provides technical support and troubleshooting",
-          avatar: "I",
-          avatarColor: "bg-purple-100",
-          textColor: "text-purple-700",
-        }
-      ]
-    }
-  ]);
+  // Khi khởi tạo Workspace, lấy dữ liệu từ localStorage nếu có
+  const [folders, setFolders] = useState<WorkspaceFolder[]>(() => {
+    const stored = localStorage.getItem('folders');
+    if (stored) return JSON.parse(stored);
+    return [
+      {
+        id: 1,
+        name: "Sales Team",
+        theme: "sales",
+        agents: [
+          {
+            id: '101',
+            name: "Sales Representative",
+            description: "Focuses on acquiring new customers and closing deals",
+            avatar: "S",
+            avatarColor: "bg-blue-100",
+            textColor: "text-blue-700",
+          },
+          {
+            id: '102',
+            name: "Sales Consultant",
+            description: "Provides expert advice to customers on product solutions",
+            avatar: "S",
+            avatarColor: "bg-blue-100",
+            textColor: "text-blue-700",
+          }
+        ]
+      },
+      {
+        id: 2,
+        name: "Marketing Team",
+        theme: "marketing",
+        agents: [
+          {
+            id: '201',
+            name: "Content Marketer",
+            description: "Creates engaging content for various marketing channels",
+            avatar: "M",
+            avatarColor: "bg-green-100",
+            textColor: "text-green-700",
+          }
+        ]
+      },
+      {
+        id: 3,
+        name: "IT Support",
+        theme: "it",
+        agents: [
+          {
+            id: '301',
+            name: "IT Specialist",
+            description: "Provides technical support and troubleshooting",
+            avatar: "I",
+            avatarColor: "bg-purple-100",
+            textColor: "text-purple-700",
+          }
+        ]
+      }
+    ];
+  });
+
+  // Sau mỗi lần folders thay đổi, lưu vào localStorage
+  useEffect(() => {
+    localStorage.setItem('folders', JSON.stringify(folders));
+  }, [folders]);
 
   const handleCreateFolder = () => {
     setIsCreateFolderOpen(true);
@@ -138,7 +149,7 @@ const Workspace = () => {
     
     if (agentName && selectedFolder) {
       const newAgent: Agent = {
-        id: Date.now(),
+        id: Date.now().toString(),
         name: agentName,
         description: agentDescription || `A ${selectedFolder.theme} agent`,
         avatar: agentName.charAt(0).toUpperCase(),
@@ -177,7 +188,7 @@ const Workspace = () => {
       : colors.general[type];
   };
 
-  const handleChatWithAgent = (agentId: number) => {
+  const handleChatWithAgent = (agentId: string) => {
     navigate(`/agents/chat/${agentId}`);
   };
 
@@ -189,6 +200,26 @@ const Workspace = () => {
       title: "Folder deleted",
       description: "The folder and its agents have been deleted.",
     });
+  };
+
+  const handleRenameFolderSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (renameFolderId === null || !renameFolderName.trim()) return;
+    setFolders(prev =>
+      prev.map(f =>
+        f.id === renameFolderId ? { ...f, name: renameFolderName } : f
+      )
+    );
+    setIsRenameFolderOpen(false);
+    setRenameFolderId(null);
+    setRenameFolderName('');
+    toast({ title: 'Folder renamed', description: `Folder has been renamed to "${renameFolderName}".` });
+  };
+
+  const openRenameFolder = (folder: WorkspaceFolder) => {
+    setRenameFolderId(folder.id);
+    setRenameFolderName(folder.name);
+    setIsRenameFolderOpen(true);
   };
 
   return (
@@ -230,7 +261,7 @@ const Workspace = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem>Rename Folder</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => openRenameFolder(folder)}>Rename Folder</DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
                         className="text-red-600"
@@ -373,6 +404,38 @@ const Workspace = () => {
             </div>
             <DialogFooter>
               <Button type="submit" className="bg-teampal-500 hover:bg-teampal-600">Create Agent</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename Folder Dialog */}
+      <Dialog open={isRenameFolderOpen} onOpenChange={setIsRenameFolderOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Rename Folder</DialogTitle>
+            <DialogDescription>
+              Enter a new name for this folder.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleRenameFolderSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="rename-folder-name" className="text-right">
+                  Name
+                </Label>
+                <Input
+                  id="rename-folder-name"
+                  value={renameFolderName}
+                  onChange={e => setRenameFolderName(e.target.value)}
+                  placeholder="Folder name"
+                  className="col-span-3"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="bg-teampal-500 hover:bg-teampal-600">Rename</Button>
             </DialogFooter>
           </form>
         </DialogContent>

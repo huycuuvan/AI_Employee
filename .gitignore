@@ -38,11 +38,5 @@ yarn-error.log*
 ehthumbs.db
 Thumbs.db
 package-lock.json
-postcss.config.js
 bun.lockb
-tailwind.config.ts
-tsconfig.app.json
-tsconfig.json
-tsconfig.node.json
-vite.config.ts
-eslint.config.js
+
