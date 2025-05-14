@@ -163,70 +163,66 @@ function ChatContent({
     : [];
 
   return (
-    <>
+    <div className="flex flex-col h-full min-h-0"> {/* Đảm bảo flex hoạt động đúng */}
       {/* Chat header */}
-      <div className="border-b p-4 flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${agent?.avatarColor} ${agent?.textColor}`}>
-          {agent?.avatar}
-        </div>
+      <div className="border-b p-4 flex items-center gap-3 flex-shrink-0 bg-white z-10">
+        <div className={`avatar-container w-8 h-8 ${agent?.avatarColor} ${agent?.textColor}`}> <div className="avatar-fallback">{agent?.avatar}</div> </div>
         <div>
           <p className="font-medium">{agent?.name}</p>
           <p className="text-xs text-muted-foreground">{agent?.department}</p>
         </div>
       </div>
-      {/* Welcome message */}
-      {welcomeMessage && (
-        <div className="flex justify-start flex-col mb-2">
-          <div className="max-w-[80%] rounded-lg p-3 bg-accent">
-            {welcomeMessage.content}
-            <div className="text-xs mt-1 opacity-70">
-              {welcomeMessage.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      {/* Nội dung chat, task, tin nhắn */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-2 md:px-4 py-2"> {/* scrollable */}
+        {welcomeMessage && (
+          <div className="flex justify-start flex-col mb-2">
+            <div className="max-w-[80%] rounded-lg p-3 bg-accent">
+              {welcomeMessage.content}
+              <div className="text-xs mt-1 opacity-70">
+                {welcomeMessage.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      {/* Task gợi ý ngay dưới welcome message */}
-      <div className="space-y-2 mb-4">
-        {suggestedTasks.map((task) => (
-          <div
-            key={task}
-            className={`max-w-[80%] rounded-lg p-3 bg-yellow-50 border border-yellow-300 cursor-pointer hover:bg-yellow-100 flex items-center gap-2 shadow-sm ${activeTask === task ? 'ring-2 ring-yellow-400' : ''}`}
-            onClick={() => handleSuggestedTaskClick(task)}
-          >
-            <MessageSquare className="w-4 h-4 text-yellow-500 mr-2" />
-            <span>{task}</span>
-          </div>
-        ))}
-        {/* Form nhập liệu cho task nếu có */}
-        {activeTask && (
-          <form className="bg-white border border-yellow-200 rounded-lg p-4 mt-2 shadow" onSubmit={handleTaskFormSubmit}>
-            {taskForms[activeTask].map((field) => (
-              <div className="mb-2" key={field.name}>
-                <label className="block text-sm font-medium mb-1">{field.label}{field.required && <span className="text-red-500">*</span>}</label>
-                <input
-                  type={field.type}
-                  name={field.name}
-                  className="w-full border rounded px-2 py-1"
-                  {...(field.type !== 'file' ? { value: taskFormValues[field.name] as string || '' } : {})}
-                  onChange={handleTaskFormChange}
-                  required={field.required}
-                  accept={field.type === 'file' ? 'image/*' : undefined}
-                />
-              </div>
-            ))}
-            <button type="submit" className="bg-teampal-500 text-white px-4 py-1 rounded hover:bg-teampal-600">Gửi task</button>
-          </form>
         )}
-      </div>
-      {/* Chat messages */}
-      <ScrollArea className="flex-1 p-4">
+        {/* Task gợi ý ngay dưới welcome message */}
+        <div className="space-y-2 mb-4">
+          {suggestedTasks.map((task) => (
+            <div
+              key={task}
+              className={`max-w-[80%] rounded-lg p-3 bg-yellow-50 border border-yellow-300 cursor-pointer hover:bg-yellow-100 flex items-center gap-2 shadow-sm ${activeTask === task ? 'ring-2 ring-yellow-400' : ''}`}
+              onClick={() => handleSuggestedTaskClick(task)}
+            >
+              <MessageSquare className="w-4 h-4 text-yellow-500 mr-2" />
+              <span>{task}</span>
+            </div>
+          ))}
+          {/* Form nhập liệu cho task nếu có */}
+          {activeTask && (
+            <form className="bg-white border border-yellow-200 rounded-lg p-4 mt-2 shadow" onSubmit={handleTaskFormSubmit}>
+              {taskForms[activeTask].map((field) => (
+                <div className="mb-2" key={field.name}>
+                  <label className="block text-sm font-medium mb-1">{field.label}{field.required && <span className="text-red-500">*</span>}</label>
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    className="w-full border rounded px-2 py-1"
+                    {...(field.type !== 'file' ? { value: taskFormValues[field.name] as string || '' } : {})}
+                    onChange={handleTaskFormChange}
+                    required={field.required}
+                    accept={field.type === 'file' ? 'image/*' : undefined}
+                  />
+                </div>
+              ))}
+              <button type="submit" className="bg-teampal-500 text-white px-4 py-1 rounded hover:bg-teampal-600">Gửi task</button>
+            </form>
+          )}
+        </div>
+        {/* Chat messages */}
         <div className="space-y-4">
           {chatMessages.map((message, idx) => (
             <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-end`}>
               {message.sender === 'agent' && (
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${agent?.avatarColor} ${agent?.textColor}`}>
-                  {agent?.avatar}
-                </div>
+                <div className={`avatar-container w-8 h-8 ${agent?.avatarColor} ${agent?.textColor} mr-2`}><div className="avatar-fallback">{agent?.avatar}</div></div>
               )}
               <div
                 className={`max-w-[80%] rounded-lg p-3 ${
@@ -241,15 +237,13 @@ function ChatContent({
                 </div>
               </div>
               {message.sender === 'user' && (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center ml-2 bg-blue-100 text-blue-700 font-bold">
-                  U
-                </div>
+                <div className="avatar-container w-8 h-8 bg-blue-100 text-blue-700 font-bold ml-2"><div className="avatar-fallback">U</div></div>
               )}
             </div>
           ))}
           {isLoading && (
             <div className="flex justify-start items-end">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-2 ${agent?.avatarColor} ${agent?.textColor}`}>{agent?.avatar}</div>
+              <div className={`avatar-container w-8 h-8 ${agent?.avatarColor} ${agent?.textColor} mr-2`}><div className="avatar-fallback">{agent?.avatar}</div></div>
               <div className="max-w-[80%] rounded-lg p-3 bg-accent/50">
                 <div className="flex gap-1">
                   <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
@@ -261,9 +255,9 @@ function ChatContent({
           )}
           <div ref={scrollRef} />
         </div>
-      </ScrollArea>
+      </div>
       {/* Input area */}
-      <div className="border-t p-4">
+      <div className="border-t p-4 flex-shrink-0 bg-white z-10">
         <div className="flex items-center gap-2">
           <div className="flex-1 relative">
             <Textarea
@@ -296,22 +290,33 @@ function ChatContent({
           <span>GPT 4o</span>
         </div>
       </div>
-    </>
+    </div>
   );
+}
+
+// Định nghĩa type cho phần tử lịch sử chat
+interface ChatHistoryItem {
+  id: string;
+  agentId: string;
+  title: string;
+  lastMessage: string;
+  timestamp: Date;
 }
 
 // Lazy load AgentListSidebar
 const AgentListSidebar = React.lazy(() => Promise.resolve({
-  default: (props: { agents: Agent[], currentAgent: Agent | undefined, handleNewChat: () => void }) => {
-    const { agents, currentAgent, handleNewChat } = props;
+  default: (props: { agents: Agent[], currentAgent: Agent | undefined, handleNewChat: () => void, historyList: ChatHistoryItem[] }) => {
+    const { agents, currentAgent, handleNewChat, historyList } = props;
     return (
       <div className="p-4">
+        {/* Header sidebar trái */}
         <div className="flex items-center gap-2 mb-4">
           <Link to="/">
             <img src="/placeholder.svg" alt="Logo" className="w-8 h-8 cursor-pointer" />
           </Link>
-          <h2 className="font-medium">Your Agents</h2>
+          <h2 className="font-medium text-base md:text-lg flex-1 text-center md:text-left">Your Agents</h2>
         </div>
+        {/* Danh sách agent */}
         {agents.map((a) => (
           <Link key={a.id} to={`/agents/chat/${a.id}`}>
             <div className={`flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-accent mb-2 ${a.id === currentAgent?.id ? 'bg-accent' : ''}`}>
@@ -323,10 +328,26 @@ const AgentListSidebar = React.lazy(() => Promise.resolve({
             </div>
           </Link>
         ))}
+        {/* Nút New chat */}
         <Button variant="outline" className="w-full mt-2 flex gap-2" onClick={handleNewChat}>
           <Plus className="h-4 w-4" />
           <span>New chat</span>
         </Button>
+        {/* Lịch sử chat dưới New chat */}
+        <div className="mt-6">
+          <h3 className="text-xs font-semibold mb-2 px-2">History</h3>
+          <div className="space-y-2 px-2">
+            {historyList.length > 0 ? historyList.map((item) => (
+              <div key={item.id} className="text-sm truncate cursor-pointer hover:bg-accent rounded px-2 py-1">
+                <div className="font-medium">{item.title}</div>
+                <div className="text-xs text-muted-foreground truncate">{item.lastMessage}</div>
+                <div className="text-xs text-muted-foreground mt-1">{new Date(item.timestamp).toLocaleDateString()}</div>
+              </div>
+            )) : (
+              <div className="text-xs text-muted-foreground px-2">No chat history yet.</div>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -495,23 +516,26 @@ const ChatWithAgent = () => {
   };
 
   // Left sidebar content - Agent list
-  const LeftSidebar = () => (
-    <Suspense fallback={
-      <div className="p-4">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex items-center gap-3 mb-4">
-            <Skeleton className="w-10 h-10" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-3 w-32" />
+  const LeftSidebar = () => {
+    const historyList = mockChatHistory.filter(chat => chat.agentId === agent?.id);
+    return (
+      <Suspense fallback={
+        <div className="p-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex items-center gap-3 mb-4">
+              <Skeleton className="w-10 h-10" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-32" />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-    }>
-      <AgentListSidebar agents={agents} currentAgent={agent} handleNewChat={handleNewChat} />
-    </Suspense>
-  );
+          ))}
+        </div>
+      }>
+        <AgentListSidebar agents={agents} currentAgent={agent} handleNewChat={handleNewChat} historyList={historyList} />
+      </Suspense>
+    );
+  };
 
   // Right sidebar content - Chat history
   const RightSidebar = () => (
