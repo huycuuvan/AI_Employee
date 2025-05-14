@@ -16,6 +16,7 @@ import ChatWithAgent from "./pages/ChatWithAgent";
 import Workspace from "./pages/Workspace";
 import Register from "./pages/Register";
 import Profile from './pages/Profile';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 const queryClient = new QueryClient();
 
@@ -26,20 +27,73 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public routes */}
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Workspace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/workspace" element={<Workspace />} />
-          <Route path="/agents" element={<Agents />} />
-          <Route path="/agents/chat" element={<ChatWithAgent />} />
-          <Route path="/agents/chat/:agentId" element={<ChatWithAgent />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/knowledge" element={<Knowledge />} />
-          <Route path="/chat" element={<GroupChat />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/settings" element={<Settings />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
+          
+          {/* Protected routes */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Workspace />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/workspace" element={
+            <ProtectedRoute>
+              <Workspace />
+            </ProtectedRoute>
+          } />
+          <Route path="/agents" element={
+            <ProtectedRoute>
+              <Agents />
+            </ProtectedRoute>
+          } />
+          <Route path="/agents/chat" element={
+            <ProtectedRoute>
+              <ChatWithAgent />
+            </ProtectedRoute>
+          } />
+          <Route path="/agents/chat/:agentId" element={
+            <ProtectedRoute>
+              <ChatWithAgent />
+            </ProtectedRoute>
+          } />
+          <Route path="/tasks" element={
+            <ProtectedRoute>
+              <Tasks />
+            </ProtectedRoute>
+          } />
+          <Route path="/knowledge" element={
+            <ProtectedRoute>
+              <Knowledge />
+            </ProtectedRoute>
+          } />
+          <Route path="/chat" element={
+            <ProtectedRoute>
+              <GroupChat />
+            </ProtectedRoute>
+          } />
+          <Route path="/analytics" element={
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          
+          {/* 404 route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

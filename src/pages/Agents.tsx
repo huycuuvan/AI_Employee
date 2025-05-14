@@ -17,74 +17,57 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { MoreHorizontal, Star } from 'lucide-react';
 
+export interface AIAgent {
+  id: string;
+  name: string;
+  description: string;
+  mainPrompts: string[];
+  tasks: string[];
+}
+
+const mockAgents: AIAgent[] = [
+  {
+    id: '1',
+    name: 'AI Model',
+    description: 'Từ ảnh sản phẩm tạo ra ảnh có mẫu đang mặc sản phẩm',
+    mainPrompts: [],
+    tasks: [],
+  },
+  {
+    id: '2',
+    name: 'AI Content Plan Facebook',
+    description: 'Từ thông tin của doanh nghiệp, tạo ra chủ đề content, từ chủ đề tạo ra nội dung bài viết, đăng video',
+    mainPrompts: [],
+    tasks: [],
+  },
+  {
+    id: '3',
+    name: 'AI Combine Video',
+    description: 'Từ những đoạn video ngắn ghép thành video dài hoàn chỉnh, thêm nhạc và voice vào video',
+    mainPrompts: [],
+    tasks: [],
+  },
+];
+
 const Agents = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isCreateAgentOpen, setIsCreateAgentOpen] = useState(false);
+  const [agents, setAgents] = useState<AIAgent[]>(mockAgents);
+  const [newAgent, setNewAgent] = useState({ name: '', description: '' });
   
-  // Mock data for agents
-  const agents = [
-    {
-      id: 1,
-      name: "Design Manager",
-      department: "Design",
-      description: "Collaborate with cross-functional teams to develop and implement effective design strategies.",
-      avatar: "D",
-      avatarColor: "bg-blue-100",
-      textColor: "text-blue-700",
-      isNew: true,
-    },
-    {
-      id: 2,
-      name: "Sales Manager",
-      department: "Sales",
-      description: "Develop and implement effective sales strategies to drive revenue growth.",
-      avatar: "S",
-      avatarColor: "bg-green-100",
-      textColor: "text-green-700",
-      isNew: true,
-    },
-    {
-      id: 3,
-      name: "Visual Designer",
-      department: "Design",
-      description: "Collaborate with cross-functional teams to understand project requirements and create visual designs.",
-      avatar: "V",
-      avatarColor: "bg-orange-100",
-      textColor: "text-orange-700",
-      isNew: true,
-    },
-    {
-      id: 4,
-      name: "Customer Support",
-      department: "Support",
-      description: "Handle customer inquiries, complaints, and requests efficiently to ensure satisfaction.",
-      avatar: "C",
-      avatarColor: "bg-pink-100",
-      textColor: "text-pink-700",
-      isNew: false,
-    },
-    {
-      id: 5,
-      name: "HR Manager",
-      department: "Human Resources",
-      description: "Develop and implement comprehensive HR policies and procedures to ensure compliance.",
-      avatar: "H",
-      avatarColor: "bg-purple-100",
-      textColor: "text-purple-700",
-      isNew: false,
-    },
-    {
-      id: 6,
-      name: "IT Manager",
-      department: "IT",
-      description: "Oversee the development, implementation, and maintenance of IT systems and infrastructure.",
-      avatar: "I",
-      avatarColor: "bg-teal-100",
-      textColor: "text-teal-700",
-      isNew: false,
+  // Lấy danh sách agents từ localStorage (giống Workspace)
+  function getAllAgentsFromFolders() {
+    const stored = localStorage.getItem('folders');
+    if (!stored) return [];
+    try {
+      const folders = JSON.parse(stored);
+      // Gắn thêm trường department là tên folder/theme
+      return folders.flatMap(f => f.agents.map(a => ({ ...a, department: f.theme })));
+    } catch {
+      return [];
     }
-  ];
+  }
 
   const handleCreateAgent = () => {
     setIsCreateAgentOpen(true);
@@ -101,6 +84,58 @@ const Agents = () => {
 
   const handleChatWithAgent = (agentId: number) => {
     navigate(`/agents/chat/${agentId}`);
+  };
+
+  interface AgentType {
+    id: string;
+    name: string;
+    description: string;
+    avatar: string;
+    avatarColor: string;
+    textColor: string;
+    department?: string;
+  }
+  interface FolderType {
+    id: number;
+    name: string;
+    theme: string;
+    agents: AgentType[];
+  }
+  const handleDeleteAgent = (agentId: string) => {
+    const stored = localStorage.getItem('folders');
+    if (!stored) return;
+    const folders: FolderType[] = JSON.parse(stored);
+    let changed = false;
+    const updatedFolders = folders.map((folder) => {
+      const newAgents = folder.agents.filter((a) => a.id !== agentId);
+      if (newAgents.length !== folder.agents.length) changed = true;
+      return { ...folder, agents: newAgents };
+    });
+    if (changed) {
+      localStorage.setItem('folders', JSON.stringify(updatedFolders));
+      window.location.reload(); // reload lại để cập nhật danh sách
+    }
+  };
+
+  // Thêm agent mới
+  const addAgent = () => {
+    if (!newAgent.name.trim()) return;
+    setAgents(prev => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        name: newAgent.name,
+        description: newAgent.description,
+        mainPrompts: [],
+        tasks: [],
+      },
+    ]);
+    setNewAgent({ name: '', description: '' });
+  };
+
+  // Xóa agent
+  const deleteAgent = (id: string) => {
+    setAgents(prev => prev.filter(agent => agent.id !== id));
   };
 
   return (
@@ -170,7 +205,7 @@ const Agents = () => {
                           <DropdownMenuItem>Edit</DropdownMenuItem>
                           <DropdownMenuItem>Duplicate</DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600" onClick={() => deleteAgent(agent.id)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -195,6 +230,11 @@ const Agents = () => {
             </Card>
           ))}
         </div>
+        {agents.length === 0 && (
+          <div className="text-center text-muted-foreground py-12">
+            No agents found. Please create agents in Workspace first.
+          </div>
+        )}
       </div>
 
       {/* Create Agent Dialog */}

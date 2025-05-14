@@ -1,11 +1,16 @@
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +18,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,12 +27,16 @@ const Login = () => {
     // Simulate API call delay
     setTimeout(() => {
       if (email && password) {
-        // In a real app, this would validate with a backend
-        navigate('/');
+        // Lưu trạng thái đăng nhập
+        localStorage.setItem('isLoggedIn', 'true');
+        
+        // Lấy đường dẫn trước đó từ state hoặc chuyển về trang chủ
+        const from = (location.state as LocationState)?.from?.pathname || '/';
+        navigate(from, { replace: true });
       } else {
         toast({
-          title: "Authentication failed",
-          description: "Please enter both email and password.",
+          title: "Đăng nhập thất bại",
+          description: "Vui lòng nhập email và mật khẩu.",
           variant: "destructive",
         });
       }
@@ -161,9 +171,9 @@ const Login = () => {
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Don't have an account?</span>{" "}
-              <a href="#" className="font-medium text-teampal-500 hover:text-teampal-600">
+              <Link to="/register" className="font-medium text-teampal-500 hover:text-teampal-600">
                 Sign up for free
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -17,7 +17,7 @@ import {
 const Sidebar = () => {
   const navigate = useNavigate();
   return (
-    <div className="h-screen border-r bg-sidebar fixed top-0 left-0 w-64 flex flex-col">
+    <div className="h-screen border-r bg-sidebar w-64 flex flex-col">
       <div className="p-4 border-b">
         <div className="flex items-center gap-2">
           <div className="bg-teampal-500 text-white p-1 rounded">
@@ -32,12 +32,7 @@ const Sidebar = () => {
       </div>
       
       <div className="p-4 flex-1 overflow-auto">
-        <div className="mb-6">
-          <Button variant="default" className="w-full flex items-center gap-2 bg-teampal-500 hover:bg-teampal-600">
-            <PlusCircle className="h-4 w-4" />
-            Create New
-          </Button>
-        </div>
+       
         
         <nav className="space-y-1">
           <NavItem to="/workspace" icon={<Folder className="h-4 w-4" />} label="Workspace" end />
