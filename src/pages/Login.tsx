@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 interface LocationState {
   from?: {
@@ -19,24 +20,20 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, i18n } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call delay
     setTimeout(() => {
       if (email && password) {
-        // Lưu trạng thái đăng nhập
         localStorage.setItem('isLoggedIn', 'true');
-        
-        // Luôn chuyển về dashboard sau khi đăng nhập thành công
         navigate('/dashboard', { replace: true });
       } else {
         toast({
-          title: "Đăng nhập thất bại",
-          description: "Vui lòng nhập email và mật khẩu.",
-          variant: "destructive",
+          title: t('login') + ' thất bại',
+          description: t('email') + ' ' + t('and') + ' ' + t('password') + ' ' + t('required'),
+          variant: 'destructive',
         });
       }
       setIsLoading(false);
@@ -45,8 +42,8 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     toast({
-      title: "Google Login",
-      description: "Google authentication would be implemented here.",
+      title: 'Google Login',
+      description: 'Google authentication would be implemented here.',
     });
   };
 
@@ -55,14 +52,14 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8 animate-scale-in">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-teampal-500 text-white mx-auto">
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-blue-500 text-white mx-auto">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <h2 className="mt-6 text-3xl font-bold tracking-tight">Sign in to TeamPal</h2>
+            <h2 className="mt-6 text-3xl font-bold tracking-tight">{t('login')} Superb AI</h2>
             <p className="mt-2 text-sm text-muted-foreground">Assemble your AI squad and get things done.</p>
           </div>
 
@@ -70,7 +67,7 @@ const Login = () => {
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
                 <Label htmlFor="email" className="block text-sm font-medium">
-                  Email address
+                  {t('email')}
                 </Label>
                 <Input
                   id="email"
@@ -88,10 +85,10 @@ const Login = () => {
               <div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="block text-sm font-medium">
-                    Password
+                    {t('password')}
                   </Label>
-                  <a href="#" className="text-sm font-medium text-teampal-500 hover:text-teampal-600">
-                    Forgot password?
+                  <a href="#" className="text-sm font-medium text-blue-500 hover:text-blue-600">
+                    {t('forgotPassword')}
                   </a>
                 </div>
                 <Input
@@ -113,17 +110,17 @@ const Login = () => {
                   htmlFor="remember-me"
                   className="ml-2 block text-sm text-gray-900 dark:text-gray-100"
                 >
-                  Remember me
+                  {t('rememberMe')}
                 </Label>
               </div>
 
               <div>
                 <Button
                   type="submit"
-                  className="w-full bg-teampal-500 hover:bg-teampal-600"
+                  className="w-full bg-blue-500 hover:bg-blue-600"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Signing in..." : "Sign in"}
+                  {isLoading ? t('login') + '...' : t('login')}
                 </Button>
               </div>
             </form>
@@ -134,7 +131,7 @@ const Login = () => {
                   <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">Or continue with</span>
+                  <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">{t('orContinueWith')}</span>
                 </div>
               </div>
 
@@ -163,16 +160,21 @@ const Login = () => {
                       fill="#EA4335"
                     />
                   </svg>
-                  Sign in with Google
+                  {t('signInWithGoogle')}
                 </Button>
               </div>
             </div>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account?</span>{" "}
-              <Link to="/register" className="font-medium text-teampal-500 hover:text-teampal-600">
-                Sign up for free
+              <span className="text-muted-foreground">{t('dontHaveAccount')}</span>{' '}
+              <Link to="/register" className="font-medium text-blue-500 hover:text-blue-600">
+                {t('register')}
               </Link>
+            </div>
+            <div className="flex justify-center gap-2 mt-4">
+              <button onClick={() => i18n.changeLanguage('vi')} className={i18n.language === 'vi' ? 'font-bold underline' : ''}>Tiếng Việt</button>
+              <span>|</span>
+              <button onClick={() => i18n.changeLanguage('en')} className={i18n.language === 'en' ? 'font-bold underline' : ''}>English</button>
             </div>
           </div>
         </div>

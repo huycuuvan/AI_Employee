@@ -9,8 +9,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
 
   if (!isLoggedIn) {
-    // Chuyển hướng về trang login và lưu lại đường dẫn hiện tại
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Chuyển hướng về trang landing page và lưu lại đường dẫn hiện tại
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
