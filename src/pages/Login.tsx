@@ -30,9 +30,8 @@ const Login = () => {
         // Lưu trạng thái đăng nhập
         localStorage.setItem('isLoggedIn', 'true');
         
-        // Lấy đường dẫn trước đó từ state hoặc chuyển về trang chủ
-        const from = (location.state as LocationState)?.from?.pathname || '/';
-        navigate(from, { replace: true });
+        // Luôn chuyển về dashboard sau khi đăng nhập thành công
+        navigate('/dashboard', { replace: true });
       } else {
         toast({
           title: "Đăng nhập thất bại",

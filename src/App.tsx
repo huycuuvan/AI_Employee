@@ -17,6 +17,7 @@ import Workspace from "./pages/Workspace";
 import Register from "./pages/Register";
 import Profile from './pages/Profile';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import Landing from './pages/Landing';
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Landing page */}
+          <Route path="/" element={<Landing />} />
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
