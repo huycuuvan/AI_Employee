@@ -168,10 +168,12 @@ function ChatContent({
     : [];
 
   return (
-    <div className="flex flex-col h-full min-h-0"> {/* Đảm bảo flex hoạt động đúng */}
+    <>
       {/* Chat header */}
-      <div className="border-b p-4 flex items-center gap-3 flex-shrink-0 bg-white z-10">
-        <div className={`avatar-container w-8 h-8 ${agent?.avatarColor} ${agent?.textColor}`}> <div className="avatar-fallback">{agent?.avatar}</div> </div>
+      <div className="border-b p-4 flex items-center gap-3">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${agent?.avatarColor} ${agent?.textColor}`}>
+          {agent?.avatar}
+        </div>
         <div>
           <p className="font-medium">{agent?.name}</p>
           <p className="text-xs text-muted-foreground">{agent?.department}</p>
@@ -396,7 +398,7 @@ function ChatContent({
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
 
@@ -622,26 +624,23 @@ const ChatWithAgent = () => {
   };
 
   // Left sidebar content - Agent list
-  const LeftSidebar = () => {
-    const historyList: ChatHistoryItem[] = mockChatHistory.filter(chat => chat.agentId === agent?.id);
-    return (
-      <Suspense fallback={
-        <div className="p-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center gap-3 mb-4">
-              <Skeleton className="w-10 h-10" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-3 w-32" />
-              </div>
+  const LeftSidebar = () => (
+    <Suspense fallback={
+      <div className="p-4">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex items-center gap-3 mb-4">
+            <Skeleton className="w-10 h-10" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
             </div>
-          ))}
-        </div>
-      }>
-        <AgentListSidebar agents={agents} currentAgent={agent} handleNewChat={handleNewChat} historyList={historyList} />
-      </Suspense>
-    );
-  };
+          </div>
+        ))}
+      </div>
+    }>
+      <AgentListSidebar agents={agents} currentAgent={agent} handleNewChat={handleNewChat} historyList={mockChatHistory.filter(chat => chat.agentId === agent?.id)} />
+    </Suspense>
+  );
 
   // Right sidebar content - Chat history
   const RightSidebar = () => (
